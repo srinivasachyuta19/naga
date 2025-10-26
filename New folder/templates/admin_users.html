@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Management - Admin Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+</head>
+<body>
+    <div class="background"></div>
+    <div class="navbar">
+        <div class="nav-brand">
+            <h3>User Management</h3>
+        </div>
+        <div class="nav-menu">
+            <a href="{{ url_for('admin_dashboard') }}" class="btn btn-primary">Back to Dashboard</a>
+            <a href="{{ url_for('logout') }}" class="btn btn-secondary">Logout</a>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="users-table-container">
+            <table class="users-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Username</th>
+                        <th>Email</th>
+                        <th>Role</th>
+                        <th>Created At</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user in users %}
+                    <tr id="user-{{ user[0] }}">
+                        <td>{{ user[0] }}</td>
+                        <td class="editable" data-field="username">{{ user[1] }}</td>
+                        <td class="editable" data-field="email">{{ user[2] }}</td>
+                        <td class="editable" data-field="role">{{ user[3] }}</td>
+                        <td>{{ user[4] }}</td>
+                        <td class="actions">
+                            <button onclick="editUser({{ user[0] }})" class="btn btn-edit">Edit</button>
+                            <button onclick="deleteUser({{ user[0] }})" class="btn btn-delete">Delete</button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        function editUser(userId) {
+            const row = document.getElementById('user-' + userId);
+            const username = row.querySelector('[data-field="username"]').textContent;
+            const email = row.querySelector('[data-field="email"]').textContent;
+            const role = row.querySelector('[data-field="role"]').textContent;
+
+            const newUsername = prompt('Enter new username:', username);
+            const newEmail = prompt('Enter new email:', email);
+            const newRole = prompt('Enter new role (user/admin):', role);
+
+            if (newUsername && newEmail && newRole) {
+                fetch(`/admin/edit_user/${userId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        username: newUsername,
+                        email: newEmail,
+                        role: newRole
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        row.querySelector('[data-field="username"]').textContent = newUsername;
+                        row.querySelector('[data-field="email"]').textContent = newEmail;
+                        row.querySelector('[data-field="role"]').textContent = newRole;
+                        alert('User updated successfully!');
+                    } else {
+                        alert('Error: ' + data.error);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('An error occurred while updating the user.');
+                });
+            }
+        }
+
+        function deleteUser(userId) {
+            if (confirm('Are you sure you want to delete this user?')) {
+                fetch(`/admin/delete_user/${userId}`, {
+                    method: 'POST',
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        document.getElementById('user-' + userId).remove();
+                        alert('User deleted successfully!');
+                    } else {
+                        alert('Error: ' + data.error);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('An error occurred while deleting the user.');
+                });
+            }
+        }
+    </script>
+</body>
+</html>

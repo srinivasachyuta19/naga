@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Phishing Detection System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+</head>
+<body>
+    <div class="background"></div>
+    <div class="navbar">
+        <div class="nav-brand">
+            <h3>Phishing Detection System</h3>
+        </div>
+        <div class="nav-menu">
+            <span>Welcome, {{ session.username }}!</span>
+            <a href="{{ url_for('edit_profile') }}" class="btn btn-primary">Edit Profile</a>
+            <a href="{{ url_for('logout') }}" class="btn btn-secondary">Logout</a>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="main-content">
+            <h1>Phishing URL Detection</h1>
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            <div class="detection-card">
+                <h3>Enter URL to Check</h3>
+                <div class="url-input-group">
+                    <input type="url" id="urlInput" placeholder="Enter website URL (e.g., https://example.com)">
+                    <button onclick="detectPhishing()" class="detect-btn">Check URL</button>
+                </div>
+
+                <div id="result" class="result-box" style="display:none;">
+                    <div id="resultContent"></div>
+                </div>
+            </div>
+
+            <div class="features-grid">
+                <div class="feature-card">
+                    <h3>🛡️ Real-time Protection</h3>
+                    <p>Advanced machine learning algorithms detect phishing websites instantly.</p>
+                </div>
+
+                <div class="feature-card">
+                    <h3>📊 Detailed Analysis</h3>
+                    <p>Get comprehensive reports on URL safety with confidence scores.</p>
+                </div>
+
+                <div class="feature-card">
+                    <h3>🔒 Secure & Private</h3>
+                    <p>Your data is protected with enterprise-grade security measures.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+</body>
+</html>
